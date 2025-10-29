@@ -107,7 +107,8 @@ class GardnerKnopoffType1(BaseCatalogueDecluster):
         # Get space and time windows corresponding to each event
         # Initial Position Identifier
         sw_space, sw_time = config["time_distance_window"].calc(
-            catalogue.data["magnitude"], config.get("time_cutoff")
+            catalogue.data["magnitude"], config.get("time_cutoff"),
+            config.get("space_cutoff")
         )
         eqid = np.arange(0, neq, 1)
         # Pre-allocate cluster index vectors

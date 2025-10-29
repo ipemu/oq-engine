@@ -69,6 +69,31 @@ def time_window_cutoff(sw_time, time_cutoff):
     )
     return sw_time
 
+def space_window_cutoff(sw_space, space_cutoff):
+    """
+    Limits the size of the spatial window calculated by the earthquake magnitude.
+    Outside the window, an event of any size is no longer identified as a cluster.
+    :param sw_space: Spatial window calculated from magnitude [km]
+    :type sw_space: numpy.ndarray
+    :param space_cutoff: Constrains the declustering space window by its lower
+        and upper dimensions [km].
+        If space_cutoff is a float, defines the lower dimension of the space window.
+        If space_cutoff is a tuple (min, max), defines the lower and upper
+        dimensions of the space windows.
+        If any of the limits are set to None, they are not used.
+    :type space_cutoff: float or tuple
+    """
+    if isinstance(space_cutoff, tuple):
+        lower_limit, upper_limit = space_cutoff
+    else:
+        lower_limit, upper_limit = space_cutoff, None
+
+    if upper_limit is not None:
+        sw_space = np.minimum(sw_space, upper_limit)
+    if lower_limit is not None:
+        sw_space = np.maximum(sw_space, lower_limit)
+
+    return sw_space
 
 class BaseDistanceTimeWindow(object):
     """
@@ -77,6 +102,7 @@ class BaseDistanceTimeWindow(object):
     """
 
     @abc.abstractmethod
+    #def calc(self, magnitude, time_cutoff=None, space_cutoff=None):
     def calc(self, magnitude, time_cutoff=None):
         """
         Allows to calculate distance and time windows (sw_space, sw_time)
@@ -139,4 +165,29 @@ class UhrhammerWindow(BaseDistanceTimeWindow):
         sw_time = np.exp(-2.87 + 1.235 * magnitude) / DAYS
         if time_cutoff:
             sw_time = time_window_cutoff(sw_time, time_cutoff)
+        return sw_space, sw_time
+
+@TIME_DISTANCE_WINDOW_FUNCTIONS.add("IPE1Window")
+class IPE1Window(BaseDistanceTimeWindow):
+    """
+    IPE1 method for calculating distance and time windows
+    """
+
+    def calc(self, magnitude, time_cutoff=None, space_cutoff=None):
+        """
+        :param magnitude: earthquake magnitude
+        :type magnitude: numpy.ndarray
+        :param time_cutoff: time window cutoff in days (optional)
+        :type time_cutoff: float
+        :param space_cutoff: space window cutoff in km (optional)
+        :type space_cutoff: float or tuple (float, float)
+        :returns: distance and time windows
+        :rtype: numpy.ndarray
+        """
+        sw_time = np.exp(-1.500 + 1.100 * magnitude) / DAYS
+        if time_cutoff:
+            sw_time = time_window_cutoff(sw_time, time_cutoff)
+        sw_space = np.exp(-3.500 + 1.150 * magnitude)
+        if space_cutoff:
+            sw_space = space_window_cutoff(sw_space, space_cutoff)
         return sw_space, sw_time

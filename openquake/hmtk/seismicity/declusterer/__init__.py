@@ -21,4 +21,5 @@ from openquake.hmtk.seismicity.declusterer.dec_afteran import (
 from openquake.hmtk.seismicity.declusterer.dec_gardner_knopoff import (
     GardnerKnopoffType1)  # noqa
 from openquake.hmtk.seismicity.declusterer.distance_time_windows import (
-    UhrhammerWindow, GardnerKnopoffWindow, GruenthalWindow)  # noqa
+    UhrhammerWindow, GardnerKnopoffWindow, GruenthalWindow,
+    IPE1Window)  # noqa
